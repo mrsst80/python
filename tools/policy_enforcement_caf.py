@@ -2,8 +2,8 @@
 #
 #
 # This script defines enforcement mode of policies under default archetypes in Azure CAF terraform module.
-# By default all policies are in DoNotEnforce mode. This can be overwrite if archetype is added to enforced_policies list.
-# List of additional policies, not included in  default list are defined in include_policies dictionary.
+# By default all policies are set in DoNotEnforce mode. This can be overwritten if archetype name is added to enforced_policies list.
+# List of additional policies, not included in default archetype policy list are defined in include_policies dictionary.
 # Before using the script the caf_ver variable needs to be defined to version the script will use.
 # The output of the script is in terraform syntax.
 #
