@@ -12,28 +12,66 @@ ANSIBLE_METADATA = {'metadata_version': '0.1',
 DOCUMENTATION = r'''
 ---
 module: mssql_query
-
-short_description: mssql custom query
-
+short_description: sql query to mssql server
 version_added: "1.0.0"
-
-description: This modules executes sql queries on mssql server. Requires python pyodbc library and FreeTDS odbc configured on the server where the module is running.
-
+description: 
+    - This modules executes sql queries on mssql server.
+    - Supported standard sql queries and calling stored procedures. 
+    - To achieve indempotency there is a option sql_query_check, where you can specity sql query, which if returns result the task will be marked as not changed and the main sql query will not be executed.
+author:
+    - Stefan Stefanov (@mrsst80)
+requirements:
+    - pyodbc
+    - FreeTDS
 options:
-    name:
-        description: This is the message to send to the test module.
+    dbname:
+        description: Name of the MSSQL database.
         required: true
         type: str
-
-author:
-    - Stefan Stefanov (@yourGitHubHandle)
+    autocommit:
+        description: pyodbc autocommit 
+        required: false
+        type: bool
+    query_type:
+        description: SQL query type.
+        required: true
+        choices: [ 'procedure', 'select', 'insert', 'update']
+        type: str
+    login_user:
+        description: User to connect to MSSQL server
+        required: true
+        type: str
+    login_password:
+        description: Password to connect to MSSQL server
+        required: true
+        type: str
+    login_hostname:
+        description: Hostname of MSSQL server
+        required: true
+        type: str
+    sql_query:
+        description: SQL query 
+        required: true
+        type: str 
+    sql_query_check:
+        description: SQL query check for idempotency 
+        required: false
+        type: str 
 '''
 
 EXAMPLES = r'''
 # Pass in a message
-- name: Test with a message
-  my_namespace.my_collection.my_test_info:
-    name: hello world
+    - name: Execute SQL procedure
+      mssql_query:
+        dbname: database_name
+        autocommit: true
+        query_type: procedure
+        login_user: db_username
+        login_password: db_password
+        login_host: mssql_hostname
+        sql_query: sql_procedure_name
+        sql_query_check: select_query
+      delegate_to: localhost
 '''
 
 RETURN = r'''
@@ -103,7 +141,7 @@ def run_module():
             sql_query=dict(required=True),
             sql_query_check=dict(default=''),
             query_type=dict(
-                default='select', choices=['select', 'procedure', 'insert']),
+                default='select', choices=['select', 'procedure', 'insert', 'update']),
             login_user=dict(default=''),
             login_password=dict(default='', no_log=True),
             login_host=dict(required=True),
