@@ -67,6 +67,3 @@ print(f"Unsqueezed tensor shape: {x_unsqueezed.size()}")
 x_original = torch.rand(size=(224, 224, 3)) # [height, width, colour_channels]
 print(x_original)
 
-# Indexing ( selecting data from tensors )
-# Indexing with PyTorch is similar to indexing with NymPy
-import 
