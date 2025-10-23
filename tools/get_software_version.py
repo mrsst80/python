@@ -51,32 +51,41 @@ def get_software_version(servers,software_name):
 
 def run_ssh_parallel(servers,software_name):
    cmd_get_software_version = "rpm -q {}".format(software_name)
-   #ssh_connect_string = "ssh -T -oStrictHostKeyChecking=no -oConnectTimeout=10 -oBatchMode=yes -i {} {}@{}".format(ssh_key,ssh_user,server)
 
    cmd_list = []
+   versions = {}
    
    for server in servers:
      cmd = "ssh -T -q -oStrictHostKeyChecking=no -oConnectTimeout=10 -oBatchMode=yes -i {} -l {} {} \"rpm -q {}\"".format(ssh_key,ssh_user,server,software_name)
      cmd_list.append(cmd)
-     #print(cmd)
 
-   procs_list = [subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=0) for cmd in cmd_list]
+   procs_list = [subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE) for cmd in cmd_list]
    for proc in procs_list:
      proc.wait()
-     print(proc.args[10])
+     #print(proc.args[10])
      if proc.returncode == 0:
-        print(proc.stdout.readlines())
+        ver = proc.stdout.readlines()[0].strip().decode('UTF-8')
+        #print(ver)
+        versions[proc.args[10]] = ver
+        #print(proc.stdout.readlines()[0].strip().decode('UTF-8'))
      else:
-        print(proc.stderr.readlines())
-     #out, err = proc.communicate()
-     #print(proc.stdout.readlines())
-     #print(proc.stderr.readlines())
-     #print(proc.returncode)
+        err = proc.stderr.readlines()[0].strip().decode('UTF-8')
+        versions[proc.args[10]] = err
+        #versions[proc.args[10]] = proc.stderr.readlines()[0].strip().decode('UTF-8')
+        #print(proc.stderr.readlines()[0].strip().decode('UTF-8'))
+        #print(err)
  
+   return versions
 def main():
   servers = get_servers_list()
   
   #get_software_version(servers,software_name)
-  run_ssh_parallel(servers,software_name)
+  versions = run_ssh_parallel(servers,software_name)
+  #print(versions)
   
-main()
+  for key in versions.keys():
+    print("{},{}".format(key,versions[key]))
+  
+if __name__ == "__main__":
+   main()
+
