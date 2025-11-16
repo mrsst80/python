@@ -2,9 +2,8 @@
 import re
 import sys 
 
-#print(len(sys.argv))
-if len(sys.argv) < 2:
-  exit("Usage: sys.argv[0] xml_file_name")
+if len(sys.argv) == 1:
+  exit("Usage: {} xml_file_name".format(sys.argv[0]))
 
 xml_file = sys.argv[1]
 
@@ -14,11 +13,13 @@ shadow = False
 with open(xml_file) as f:
   for line in f:
      s_line = line.strip()
-     if "<!--" in s_line:
+     if "<!--" in s_line and "-->" not in s_line:
         shadow = True
         continue
-     elif "-->" in s_line:
+     elif "-->" in s_line and "<!--" not in s_line:
         shadow = False
+     elif "<!--" in s_line and "-->" in s_line:
+        continue
      else:
         #if not shadow and len(s_line) > 0:
         if not shadow:
